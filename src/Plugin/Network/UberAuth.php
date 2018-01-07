@@ -2,6 +2,7 @@
 
 namespace Drupal\social_auth_uber\Plugin\Network;
 
+use Stevenmaguire\OAuth2\Client\Provider\Uber;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
@@ -11,7 +12,6 @@ use Drupal\social_api\Plugin\NetworkBase;
 use Drupal\social_api\SocialApiException;
 use Drupal\social_auth_uber\Settings\UberAuthSettings;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use League\OAuth2\Client\Provider\Uber;
 use Drupal\Core\Site\Settings;
 
 /**
@@ -156,7 +156,7 @@ class UberAuth extends NetworkBase implements UberAuthInterface {
         ];
       }
 
-      return new \Stevenmaguire\OAuth2\Client\Provider\Uber($league_settings);
+      return new Uber($league_settings);
     }
     return FALSE;
   }

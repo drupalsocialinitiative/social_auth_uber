@@ -76,7 +76,6 @@ class UberAuthManager extends OAuth2Manager {
    */
   protected $settings;
 
-
   /**
    * Constructor.
    *
@@ -101,9 +100,6 @@ class UberAuthManager extends OAuth2Manager {
 
   /**
    * Authenticates the users by using the access token.
-   *
-   * @return $this
-   *   The current object.
    */
   public function authenticate() {
     $this->token = $this->client->getAccessToken('authorization_code',
@@ -128,10 +124,10 @@ class UberAuthManager extends OAuth2Manager {
    *   Data returned by Making API Call.
    */
   public function getExtraDetails($url) {
-    if($url) {
+    if ($url) {
       $httpRequest = $this->client->getAuthenticatedRequest('GET', $url, $this->token, []);
       $data = $this->client->getResponse($httpRequest);
-      return json_decode($data->getBody(), true);
+      return json_decode($data->getBody(), TRUE);
     }
   }
 
@@ -162,6 +158,5 @@ class UberAuthManager extends OAuth2Manager {
     // Generate and return the URL where we should redirect the user.
     return $state;
   }
-
 
 }

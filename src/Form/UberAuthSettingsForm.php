@@ -115,7 +115,6 @@ class UberAuthSettingsForm extends SocialAuthSettingsForm {
       '#default_value' => $this->requestContext->getHost(),
     ];
 
-
     return parent::buildForm($form, $form_state);
   }
 
