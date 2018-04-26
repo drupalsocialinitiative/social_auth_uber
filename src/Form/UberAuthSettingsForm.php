@@ -107,12 +107,29 @@ class UberAuthSettingsForm extends SocialAuthSettingsForm {
       '#default_value' => $GLOBALS['base_url'] . '/user/login/uber/callback',
     ];
 
-    $form['uber_settings']['authorized_javascript_origin'] = [
-      '#type' => 'textfield',
-      '#disabled' => TRUE,
-      '#title' => $this->t('Authorized Javascript Origin'),
-      '#description' => $this->t('Copy this value to <em>Authorized Javascript Origins</em> field of your Uber App settings.'),
-      '#default_value' => $this->requestContext->getHost(),
+    $form['uber_settings']['advanced'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Advanced settings'),
+      '#open' => FALSE,
+    ];
+
+    $form['uber_settings']['advanced']['scopes'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('Scopes'),
+      '#default_value' => $config->get('scopes'),
+      '#description' => $this->t('Define any scopes to be requested, separated by a comma (e.g.: history,places).<br>
+                                  The scope \'profile\' is added by default and always requested.<br>
+                                  You can see the full list of valid scopes and their description <a href="@scopes">here</a>.', ['@scopes' => 'https://developer.uber.com/docs/riders/guides/scopes']),
+    ];
+
+    $form['uber_settings']['advanced']['endpoints'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('API calls to be made to collect data'),
+      '#default_value' => $config->get('endpoints'),
+      '#description' => $this->t('Define the endpoints to be requested when user authenticates with Uber for the first time<br>
+                                  Enter each endpoint in different lines in the format <em>endpoint</em>|<em>name_of_endpoint</em>.<br>
+                                  <b>For instance:</b><br>
+                                  /v1.2/history|rider_history'),
     ];
 
     return parent::buildForm($form, $form_state);
@@ -126,6 +143,8 @@ class UberAuthSettingsForm extends SocialAuthSettingsForm {
     $this->config('social_auth_uber.settings')
       ->set('client_id', $values['client_id'])
       ->set('client_secret', $values['client_secret'])
+      ->set('scopes', $values['scopes'])
+      ->set('endpoints', $values['endpoints'])
       ->save();
 
     parent::submitForm($form, $form_state);

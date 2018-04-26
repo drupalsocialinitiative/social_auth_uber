@@ -66,7 +66,7 @@ class UberAuth extends NetworkBase implements UberAuthInterface {
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     return new static(
-      $container->get('social_auth.social_auth_data_handler'),
+      $container->get('social_auth.data_handler'),
       $configuration,
       $plugin_id,
       $plugin_definition,
@@ -122,7 +122,7 @@ class UberAuth extends NetworkBase implements UberAuthInterface {
   /**
    * Sets the underlying SDK library.
    *
-   * @return \League\OAuth2\Client\Provider\Uber
+   * @return \Stevenmaguire\OAuth2\Client\Provider\Uber
    *   The initialized 3rd party library instance.
    *
    * @throws SocialApiException
@@ -132,32 +132,28 @@ class UberAuth extends NetworkBase implements UberAuthInterface {
 
     $class_name = 'Stevenmaguire\OAuth2\Client\Provider\Uber';
     if (!class_exists($class_name)) {
-      throw new SocialApiException(sprintf('The Uber Library for the league oAuth not found. Class: %s.', $class_name));
+      throw new SocialApiException(sprintf('The Uber library for PHP League OAuth2 not found. Class: %s.', $class_name));
     }
+
     /* @var \Drupal\social_auth_uber\Settings\UberAuthSettings $settings */
     $settings = $this->settings;
-    // Proxy configuration data for outward proxy.
-    $proxyUrl = $this->siteSettings->get("http_client_config")["proxy"]["http"];
     if ($this->validateConfig($settings)) {
       // All these settings are mandatory.
+      $league_settings = [
+        'clientId' => $settings->getClientId(),
+        'clientSecret' => $settings->getClientSecret(),
+        'redirectUri' => $this->requestContext->getCompleteBaseUrl() . '/user/login/uber/callback',
+      ];
+
+      // Proxy configuration data for outward proxy.
+      $proxyUrl = $this->siteSettings->get('http_client_config')['proxy']['http'];
       if ($proxyUrl) {
-        $league_settings = [
-          'clientId' => $settings->getClientId(),
-          'clientSecret' => $settings->getClientSecret(),
-          'redirectUri' => $this->requestContext->getCompleteBaseUrl() . '/user/login/uber/callback',
-          'proxy' => $proxyUrl,
-        ];
-      }
-      else {
-        $league_settings = [
-          'clientId' => $settings->getClientId(),
-          'clientSecret' => $settings->getClientSecret(),
-          'redirectUri' => $this->requestContext->getCompleteBaseUrl() . '/user/login/uber/callback',
-        ];
+        $league_settings['proxy'] = $proxyUrl;
       }
 
       return new Uber($league_settings);
     }
+
     return FALSE;
   }
 

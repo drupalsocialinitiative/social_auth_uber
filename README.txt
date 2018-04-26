@@ -13,7 +13,7 @@ CONTENTS OF THIS FILE
 INTRODUCTION
 ------------
 
-Social Auth Uber Module is an Uber Authentication integration for Drupal.
+Social Auth Uber is an Uber authentication integration for Drupal.
 
 
 REQUIREMENTS
@@ -29,7 +29,7 @@ INSTALLATION
 ------------
 
  * Use composer to install the dependencies :
-	composer require "drupal/social_auth_uber"
+	composer require "drupal/social_auth_uber:^2.0"
 
  * Install the dependencies: Social API and Social Auth.
 

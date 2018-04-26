@@ -32,7 +32,7 @@ class UberAuthController extends ControllerBase {
   private $userManager;
 
   /**
-   * The uber authentication manager.
+   * The Uber authentication manager.
    *
    * @var \Drupal\social_auth_uber\UberAuthManager
    */
@@ -76,7 +76,12 @@ class UberAuthController extends ControllerBase {
    * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $logger_factory
    *   Used for logging errors.
    */
-  public function __construct(NetworkManager $network_manager, SocialAuthUserManager $user_manager, UberAuthManager $uber_manager, RequestStack $request, SocialAuthDataHandler $social_auth_data_handler, LoggerChannelFactoryInterface $logger_factory) {
+  public function __construct(NetworkManager $network_manager,
+                              SocialAuthUserManager $user_manager,
+                              UberAuthManager $uber_manager,
+                              RequestStack $request,
+                              SocialAuthDataHandler $social_auth_data_handler,
+                              LoggerChannelFactoryInterface $logger_factory) {
 
     $this->networkManager = $network_manager;
     $this->userManager = $user_manager;
@@ -90,7 +95,6 @@ class UberAuthController extends ControllerBase {
 
     // Sets the session keys to nullify if user could not logged in.
     $this->userManager->setSessionKeysToNullify(['access_token', 'oauth2state']);
-    $this->setting = $this->config('social_auth_uber.settings');
   }
 
   /**
@@ -102,7 +106,7 @@ class UberAuthController extends ControllerBase {
       $container->get('social_auth.user_manager'),
       $container->get('social_auth_uber.manager'),
       $container->get('request_stack'),
-      $container->get('social_auth.social_auth_data_handler'),
+      $container->get('social_auth.data_handler'),
       $container->get('logger.factory')
     );
   }
@@ -113,28 +117,26 @@ class UberAuthController extends ControllerBase {
    * Redirects the user to Uber for authentication.
    */
   public function redirectToUber() {
-    /* @var \League\OAuth2\Client\Provider\Uber false $uber */
+    /* @var \Stevenmaguire\OAuth2\Client\Provider\Uber||false $uber */
     $uber = $this->networkManager->createInstance('social_auth_uber')->getSdk();
 
-    // If uber client could not be obtained.
+    // If Uber client could not be obtained.
     if (!$uber) {
       drupal_set_message($this->t('Social Auth Uber not configured properly. Contact site administrator.'), 'error');
       return $this->redirect('user.login');
     }
 
-    // Uber service was returned, inject it to $uberManager.
+    // Uber client was returned, inject it to $uberManager.
     $this->uberManager->setClient($uber);
 
-    // Generates the URL where the user will be redirected for Uber login.
-    // If the user did not have email permission granted on previous attempt,
-    // we use the re-request URL requesting only the email address.
-    $uber_login_url = $this->uberManager->getUberLoginUrl();
+    // Generates the URL where the user will be redirected for authorization.
+    $login_url = $this->uberManager->getAuthorizationUrl();
 
     $state = $this->uberManager->getState();
 
     $this->dataHandler->set('oauth2state', $state);
 
-    return new TrustedRedirectResponse($uber_login_url);
+    return new TrustedRedirectResponse($login_url);
   }
 
   /**
@@ -150,7 +152,7 @@ class UberAuthController extends ControllerBase {
       return $this->redirect('user.login');
     }
 
-    /* @var \League\OAuth2\Client\Provider\Uber false $uber */
+    /* @var \Stevenmaguire\OAuth2\Client\Provider\Uber false $uber */
     $uber = $this->networkManager->createInstance('social_auth_uber')->getSdk();
 
     // If Uber client could not be obtained.
@@ -161,11 +163,11 @@ class UberAuthController extends ControllerBase {
 
     $state = $this->dataHandler->get('oauth2state');
 
-    // Retreives $_GET['state'].
+    // Retrieves $_GET['state'].
     $retrievedState = $this->request->getCurrentRequest()->query->get('state');
     if (empty($retrievedState) || ($retrievedState !== $state)) {
       $this->userManager->nullifySessionKeys();
-      drupal_set_message($this->t('Uber login failed. Unvalid oAuth2 State.'), 'error');
+      drupal_set_message($this->t('Uber login failed. Unvalid OAuth2 State.'), 'error');
       return $this->redirect('user.login');
     }
 
@@ -175,13 +177,17 @@ class UberAuthController extends ControllerBase {
     $this->uberManager->setClient($uber)->authenticate();
 
     // Gets user's info from Uber API.
-    if (!$uber_profile = $this->uberManager->getUserInfo()) {
+    /* @var \Stevenmaguire\OAuth2\Client\Provider\UberResourceOwner $profile */
+    if (!$profile = $this->uberManager->getUserInfo()) {
       drupal_set_message($this->t('Uber login failed, could not load Uber profile. Contact site administrator.'), 'error');
       return $this->redirect('user.login');
     }
 
+    // Gets (or not) extra initial data.
+    $data = $this->userManager->checkIfUserExists($profile->getId()) ? NULL : $this->uberManager->getExtraDetails();
+
     // If user information could be retrieved.
-    return $this->userManager->authenticateUser($uber_profile->getFirstName() . ' ' . $uber_profile->getLastName(), $uber_profile->getEmail(), $uber_profile->getId(), $this->uberManager->getAccessToken(), '', '');
+    return $this->userManager->authenticateUser($profile->getFirstname() . ' ' . $profile->getLastname(), $profile->getEmail(), $profile->getId(), $this->uberManager->getAccessToken(), $profile->getImageurl(), $data);
 
   }
 
