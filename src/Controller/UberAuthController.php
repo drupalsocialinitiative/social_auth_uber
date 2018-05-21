@@ -117,7 +117,7 @@ class UberAuthController extends ControllerBase {
    * Redirects the user to Uber for authentication.
    */
   public function redirectToUber() {
-    /* @var \Stevenmaguire\OAuth2\Client\Provider\Uber||false $uber */
+    /* @var \Stevenmaguire\OAuth2\Client\Provider\Uber|false $uber */
     $uber = $this->networkManager->createInstance('social_auth_uber')->getSdk();
 
     // If Uber client could not be obtained.
@@ -152,7 +152,7 @@ class UberAuthController extends ControllerBase {
       return $this->redirect('user.login');
     }
 
-    /* @var \Stevenmaguire\OAuth2\Client\Provider\Uber false $uber */
+    /* @var \Stevenmaguire\OAuth2\Client\Provider\Uber|false $uber */
     $uber = $this->networkManager->createInstance('social_auth_uber')->getSdk();
 
     // If Uber client could not be obtained.
@@ -171,10 +171,10 @@ class UberAuthController extends ControllerBase {
       return $this->redirect('user.login');
     }
 
+    $this->uberManager->setClient($uber)->authenticate();
+
     // Saves access token to session.
     $this->dataHandler->set('access_token', $this->uberManager->getAccessToken());
-
-    $this->uberManager->setClient($uber)->authenticate();
 
     // Gets user's info from Uber API.
     /* @var \Stevenmaguire\OAuth2\Client\Provider\UberResourceOwner $profile */
