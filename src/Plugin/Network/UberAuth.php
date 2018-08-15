@@ -122,8 +122,9 @@ class UberAuth extends NetworkBase implements UberAuthInterface {
   /**
    * Sets the underlying SDK library.
    *
-   * @return \Stevenmaguire\OAuth2\Client\Provider\Uber
+   * @return \Stevenmaguire\OAuth2\Client\Provider\Uber|false
    *   The initialized 3rd party library instance.
+   *   False if library could not be initialized.
    *
    * @throws SocialApiException
    *   If the SDK library does not exist.

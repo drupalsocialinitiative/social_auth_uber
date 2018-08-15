@@ -1,7 +1,7 @@
 social_auth_uber.redirect_to_uber:
   path: 'user/login/uber'
   defaults:
-    _controller: '\Drupal\social_auth_uber\Controller\UberAuthController::redirectToUber'
+    _controller: '\Drupal\social_auth_uber\Controller\UberAuthController::redirectToProvider'
   requirements:
     # Anonymous users can log in, but authenticated users can also associate a new provider.
     _access: 'TRUE'
