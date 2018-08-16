@@ -2,16 +2,17 @@
 
 namespace Drupal\Tests\social_auth_uber\Functional;
 
-use Drupal\social_api\SocialApiSettingsFormBaseTest;
+use Drupal\Tests\social_auth\Functional\SocialAuthTestBase;
 
 /**
- * Test Social Auth Uber settings form functionality.
+ * Test Social Auth Uber settings form.
  *
  * @group social_auth
  *
  * @ingroup social_auth_uber
  */
-class SocialAuthUberSettingsFormTest extends SocialApiSettingsFormBaseTest {
+class SocialAuthUberSettingsFormTest extends SocialAuthTestBase {
+
   /**
    * Modules to enable.
    *
@@ -24,28 +25,40 @@ class SocialAuthUberSettingsFormTest extends SocialApiSettingsFormBaseTest {
    */
   protected function setUp() {
     $this->module = 'social_auth_uber';
-    $this->socialNetwork = 'uber';
-    $this->moduleType = 'social-auth';
+    $this->provider = 'uber';
+
     parent::setUp();
   }
 
   /**
-   * {@inheritdoc}
+   * Test if implementer is shown in the integration list.
    */
   public function testIsAvailableInIntegrationList() {
     $this->fields = ['client_id', 'client_secret'];
-    parent::testIsAvailableInIntegrationList();
+
+    $this->checkIsAvailableInIntegrationList();
   }
 
   /**
-   * {@inheritdoc}
+   * Test if permissions are set correctly for settings page.
+   *
+   * @throws \Behat\Mink\Exception\ElementNotFoundException
+   * @throws \Behat\Mink\Exception\ExpectationException
+   */
+  public function testPermissionForSettingsPage() {
+    $this->checkPermissionForSettingsPage();
+  }
+
+  /**
+   * Test settings form submission.
    */
   public function testSettingsFormSubmission() {
     $this->edit = [
       'client_id' => $this->randomString(10),
       'client_secret' => $this->randomString(10),
     ];
-    parent::testSettingsFormSubmission();
+
+    $this->checkSettingsFormSubmission();
   }
 
 }
