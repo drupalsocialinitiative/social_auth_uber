@@ -11,7 +11,7 @@ use Stevenmaguire\OAuth2\Client\Provider\Uber;
 /**
  * Defines a Network Plugin for Social Auth Uber.
  *
- * @package Drupal\simple_uber_connect\Plugin\Network
+ * @package Drupal\social_aut_uber\Plugin\Network
  *
  * @Network(
  *   id = "social_auth_uber",
