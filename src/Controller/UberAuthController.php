@@ -43,9 +43,9 @@ class UberAuthController extends OAuth2ControllerBase {
                               SocialAuthDataHandler $data_handler,
                               RendererInterface $renderer) {
 
-    parent::__construct('Social Auth Uber', 'social_auth_uber',
-                        $messenger, $network_manager, $user_authenticator,
-                        $uber_manager, $request, $data_handler, $renderer);
+    parent::__construct('Social Auth Uber', 'social_auth_uber', $messenger,
+                        $network_manager, $user_authenticator, $uber_manager,
+                        $request, $data_handler, $renderer);
   }
 
   /**
@@ -70,14 +70,13 @@ class UberAuthController extends OAuth2ControllerBase {
    */
   public function callback() {
 
-    // Checks if authentication failed.
-    if ($this->request->getCurrentRequest()->query->has('error')) {
-      $this->messenger->addError($this->t('You could not be authenticated.'));
-
-      return $this->redirect('user.login');
+    // Checks if there was an authentication error.
+    $redirect = $this->checkAuthError();
+    if ($redirect) {
+      return $redirect;
     }
 
-    /* @var \Stevenmaguire\OAuth2\Client\Provider\UberResourceOwner|null $profile */
+    /** @var \Stevenmaguire\OAuth2\Client\Provider\UberResourceOwner|null $profile */
     $profile = $this->processCallback();
 
     // If authentication was successful.
@@ -88,7 +87,12 @@ class UberAuthController extends OAuth2ControllerBase {
 
       $name = $profile->getFirstname() . ' ' . $profile->getLastname();
 
-      return $this->userAuthenticator->authenticateUser($name, $profile->getEmail(), $profile->getId(), $this->providerManager->getAccessToken(), $profile->getImageurl(), $data);
+      return $this->userAuthenticator->authenticateUser($name,
+                                                        $profile->getEmail(),
+                                                        $profile->getId(),
+                                                        $this->providerManager->getAccessToken(),
+                                                        $profile->getImageurl(),
+                                                        $data);
     }
 
     return $this->redirect('user.login');

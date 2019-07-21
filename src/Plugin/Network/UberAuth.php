@@ -11,7 +11,7 @@ use Stevenmaguire\OAuth2\Client\Provider\Uber;
 /**
  * Defines a Network Plugin for Social Auth Uber.
  *
- * @package Drupal\social_aut_uber\Plugin\Network
+ * @package Drupal\social_auth_uber\Plugin\Network
  *
  * @Network(
  *   id = "social_auth_uber",
@@ -34,7 +34,7 @@ class UberAuth extends NetworkBase implements UberAuthInterface {
    *   The initialized 3rd party library instance.
    *   False if library could not be initialized.
    *
-   * @throws SocialApiException
+   * @throws \Drupal\social_api\SocialApiException
    *   If the SDK library does not exist.
    */
   protected function initSdk() {
@@ -44,7 +44,7 @@ class UberAuth extends NetworkBase implements UberAuthInterface {
       throw new SocialApiException(sprintf('The Uber library for PHP League OAuth2 not found. Class: %s.', $class_name));
     }
 
-    /* @var \Drupal\social_auth_uber\Settings\UberAuthSettings $settings */
+    /** @var \Drupal\social_auth_uber\Settings\UberAuthSettings $settings */
     $settings = $this->settings;
     if ($this->validateConfig($settings)) {
       // All these settings are mandatory.
